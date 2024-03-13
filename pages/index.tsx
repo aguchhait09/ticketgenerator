@@ -57,9 +57,11 @@ const Index = () => {
   let CURRENT_DATE = `${day}/${month}/${year}`;
 
   const handleCopyAll = () => {
-    const allTicketNumbers = number?.map((item: any) =>
-      `${ticketData.link}/${ticketData.ticketFormat}-${item}`
-    ).join('\n');
+    const allTicketNumbers = `
+    Update ${CURRENT_DATE}
+    Worked on these tickets
+    ${number?.map((item: any) => `${ticketData.link}/${ticketData.ticketFormat}-${item}`).join('\n')}
+  `
     copy(allTicketNumbers);
   };
 
