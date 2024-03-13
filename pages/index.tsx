@@ -95,9 +95,9 @@ const index = () => {
         <form onSubmit={handleSubmit((data) => setTicketData(data as any))}>
           <StyledTypography>Ticket Generator</StyledTypography>
           <StyledSecondaryText>Enter Default Link</StyledSecondaryText>
-          <CustomInput fullWidth type="text" {...register("link")} />
+          <CustomInput fullWidth type="text" defaultValue="https://signaturepharmacy.atlassian.net/browse" {...register("link")} />
           <StyledSecondaryText>Enter Ticket Format</StyledSecondaryText>
-          <CustomInput fullWidth type="text" {...register("ticketFormat")} />
+          <CustomInput fullWidth type="text" defaultValue="SCN" {...register("ticketFormat")} />
           <StyledSecondaryText>Enter Ticket Number</StyledSecondaryText>
           <CustomInput fullWidth type="text" {...register("ticketNumber")} />
           <Button
