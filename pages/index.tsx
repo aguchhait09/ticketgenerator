@@ -3,6 +3,7 @@ import { Box, Button, Container, Typography, styled } from "@mui/material";
 import dynamic from "next/dynamic";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useClipboard } from '@mantine/hooks';
 
 const StyledContainer = styled(Container)`
   margin: 10px;
@@ -14,7 +15,7 @@ const StyledBox = styled(Box)`
   width: 50%;
   box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.5);
   padding: 20px;
-  border-radious: 10px;
+  border-radius: 10px;
 `;
 const StyledTypography = styled(Typography)`
   text-align: center;
@@ -25,7 +26,7 @@ const StyledTypography = styled(Typography)`
 const StyledSecondaryText = styled(Typography)`
   font-family: Times New Roman;
   margin-top: 5px;
-  margin-botom: 5px;
+  margin-bottom: 5px;
 `;
 const StyledNormalText = styled(Typography)`
   font-family: Times New Roman;
@@ -33,66 +34,39 @@ const StyledNormalText = styled(Typography)`
   font-weight: bold;
 `;
 
-const QuillNoSSRWrapper = dynamic(import('react-quill'), {	
-	ssr: false,
-	loading: () => <p>Loading ...</p>,
-	})
-  const modules = {
-    toolbar: [
-      [{ header: '1' }, { header: '2' }, { font: [] }],
-      [{ size: [] }],
-      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [
-        { list: 'ordered' },
-        { list: 'bullet' },
-        { indent: '-1' },
-        { indent: '+1' },
-      ],
-      ['link', 'image', 'video'],
-      ['clean'],
-    ],
-    clipboard: {
-      matchVisual: false,
-    },
-  }
-  
-  const formats = [
-    'header',
-    'font',
-    'size',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'blockquote',
-    'list',
-    'bullet',
-    'indent',
-    'link',
-    'image',
-    'video',
-  ]
-const index = () => {
+const QuillNoSSRWrapper = dynamic(import('react-quill'), {
+  ssr: false,
+  loading: () => <p>Loading ...</p>,
+});
+
+const Index = () => {
   const { register, handleSubmit } = useForm();
-  const [ticketData, setTicketData] : any= useState([]);
+  const [ticketData, setTicketData] = useState<any>({});
   const number = ticketData?.ticketNumber?.split(",");
   console.log("data", ticketData?.ticketNumber);
 
-  // Editor
-
+  // Clipboard Hook
+  const { copy, copied } = useClipboard();
 
   // Date
-  const date = new Date()
-  let day = date.getDate()
+  const date = new Date();
+  let day = date.getDate();
   let month = date.getMonth() + 1;
-  let year = date.getFullYear()
+  let year = date.getFullYear();
 
-  let CURRENT_DATE = `${day}/${month}/${year}`
+  let CURRENT_DATE = `${day}/${month}/${year}`;
+
+  const handleCopyAll = () => {
+    const allTicketNumbers = number?.map((item: any) =>
+      `${ticketData.link}/${ticketData.ticketFormat}-${item}`
+    ).join('\n');
+    copy(allTicketNumbers);
+  };
 
   return (
     <StyledContainer>
       <StyledBox>
-        <form onSubmit={handleSubmit((data) => setTicketData(data as any))}>
+        <form onSubmit={handleSubmit((data) => setTicketData(data))}>
           <StyledTypography>Ticket Generator</StyledTypography>
           <StyledSecondaryText>Enter Default Link</StyledSecondaryText>
           <CustomInput fullWidth type="text" defaultValue="https://signaturepharmacy.atlassian.net/browse" {...register("link")} />
@@ -112,24 +86,24 @@ const index = () => {
       </StyledBox>
       <StyledBox sx={{ mt: 5 }}>
         <StyledTypography>Generated Ticket</StyledTypography>
-        {
-          number ? (
-            <>
+        {number ? (
+          <>
             <StyledNormalText>Update {CURRENT_DATE}</StyledNormalText>
-              <StyledNormalText>Worked on these tickets</StyledNormalText>
-            </>
-          ) : null
-        }
-        {number?.map((item: any) => {
-          return (
-            <>
+            <StyledNormalText>Worked on these tickets</StyledNormalText>
+          </>
+        ) : null}
+        {number?.map((item: any) => (
+          <div key={item}>
             <StyledSecondaryText>{`${ticketData.link}/${ticketData.ticketFormat}-${item}`}</StyledSecondaryText>
-            </>
-          );
-        })}
+          </div>
+        ))}
+        <Button variant="contained" color="info" sx={{mt: 2}} onClick={handleCopyAll}>
+        {copied ? <span>Copied!</span> : <span>Copy</span>}
+        </Button>
+        
       </StyledBox>
     </StyledContainer>
   );
 };
 
-export default index;
+export default Index;
