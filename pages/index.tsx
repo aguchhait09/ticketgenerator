@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useClipboard } from '@mantine/hooks';
+import _, { map } from 'underscore';
 
 const StyledContainer = styled(Container)`
   margin: 10px;
@@ -43,7 +44,8 @@ const Index = () => {
   const { register, handleSubmit } = useForm();
   const [ticketData, setTicketData] = useState<any>({});
   const number = ticketData?.ticketNumber?.split(",");
-  console.log("data", ticketData?.ticketNumber);
+  const uniqeNumbers = _.uniq(number)
+  console.log("data", uniqeNumbers);
 
   // Clipboard Hook
   const { copy, copied } = useClipboard();
@@ -60,7 +62,7 @@ const Index = () => {
     const allTicketNumbers = `
     Update ${CURRENT_DATE}
     Worked on these tickets
-    ${number?.map((item: any) => `${ticketData.link}/${ticketData.ticketFormat}-${item}`).join('\n')}
+    ${uniqeNumbers?.map((item: any) => `${ticketData.link}/${ticketData.ticketFormat}-${item}`).join('\n')}
   `
     copy(allTicketNumbers);
   };
@@ -94,7 +96,7 @@ const Index = () => {
             <StyledNormalText>Worked on these tickets</StyledNormalText>
           </>
         ) : null}
-        {number?.map((item: any) => (
+        {uniqeNumbers?.map((item: any) => (
           <div key={item}>
             <StyledSecondaryText>{`${ticketData.link}/${ticketData.ticketFormat}-${item}`}</StyledSecondaryText>
           </div>
