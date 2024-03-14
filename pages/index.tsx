@@ -1,10 +1,11 @@
 import CustomInput from "@/components/CustomInput";
 import { Box, Button, Container, Typography, styled } from "@mui/material";
 import dynamic from "next/dynamic";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useClipboard } from '@mantine/hooks';
 import _, { map } from 'underscore';
+import ReactQuill from "react-quill";
 
 const StyledContainer = styled(Container)`
   margin: 10px;
@@ -41,31 +42,37 @@ const QuillNoSSRWrapper = dynamic(import('react-quill'), {
 });
 
 const Index = () => {
+  // Get Data From User
   const { register, handleSubmit } = useForm();
   const [ticketData, setTicketData] = useState<any>({});
   const number = ticketData?.ticketNumber?.split(",");
   const uniqeNumbers = _.uniq(number)
   console.log("data", uniqeNumbers);
 
-  // Clipboard Hook
-  const { copy, copied } = useClipboard();
-
   // Date
   const date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1;
   let year = date.getFullYear();
-
   let CURRENT_DATE = `${day}/${month}/${year}`;
-
-  const handleCopyAll = () => {
-    const allTicketNumbers = `
+  
+  // Clipboard Hook
+  const { copy, copied } = useClipboard();
+  const allTicketNumbers = `
     Update ${CURRENT_DATE}
     Worked on these tickets
     ${uniqeNumbers?.map((item: any) => `${ticketData.link}/${ticketData.ticketFormat}-${item}`).join('\n')}
   `
+  const handleCopyAll = () => {
     copy(allTicketNumbers);
   };
+
+  // Editor Quill 
+  const [editorValue, setEditorValue] = useState('')
+  useEffect(()=>{
+    setEditorValue(allTicketNumbers)
+  },[uniqeNumbers,])
+  
 
   return (
     <StyledContainer>
@@ -77,7 +84,7 @@ const Index = () => {
           <StyledSecondaryText>Enter Ticket Format</StyledSecondaryText>
           <CustomInput fullWidth type="text" defaultValue="SCN" {...register("ticketFormat")} />
           <StyledSecondaryText>Enter Ticket Number</StyledSecondaryText>
-          <CustomInput fullWidth type="text" {...register("ticketNumber")} />
+          <CustomInput fullWidth type="text" {...register("ticketNumber")} required/>
           <Button
             variant="contained"
             color="success"
@@ -101,10 +108,11 @@ const Index = () => {
             <StyledSecondaryText>{`${ticketData.link}/${ticketData.ticketFormat}-${item}`}</StyledSecondaryText>
           </div>
         ))}
+        <div dangerouslySetInnerHTML={{__html: editorValue}}/>
         <Button variant="contained" color="info" sx={{mt: 2}} onClick={handleCopyAll}>
         {copied ? <span>Copied!</span> : <span>Copy</span>}
         </Button>
-        
+        <QuillNoSSRWrapper theme="snow" value={editorValue} onChange={setEditorValue}/>
       </StyledBox>
     </StyledContainer>
   );
